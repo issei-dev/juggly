@@ -1,0 +1,164 @@
+body {
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    background-color: #f4f4f9;
+    padding: 20px;
+}
+
+#app {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+#status {
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* スロット本体 */
+#slot-machine {
+    border: 5px solid #333;
+    background-color: #111;
+    padding: 10px;
+    border-radius: 5px;
+    position: relative;
+}
+
+#reels {
+    display: flex;
+    justify-content: space-around;
+    height: 150px; /* リールの高さ */
+    overflow: hidden;
+}
+
+.reel-container {
+    width: 30%;
+    border: 2px solid #555;
+    background-color: #000;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 50px;
+    /* アニメーション用の設定 */
+    transition: transform 0.1s linear;
+}
+
+/* GOGO!ランプ */
+#gogo-lamp {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 15px;
+    margin-top: 10px;
+    border-radius: 5px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333; /* 消灯時の色 */
+    background-color: #ccc;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+#gogo-lamp.on {
+    color: yellow;
+    background-color: red;
+    text-shadow: 0 0 10px yellow, 0 0 20px red;
+    animation: flash 0.5s infinite alternate;
+}
+
+@keyframes flash {
+    from { opacity: 1; }
+    to { opacity: 0.7; }
+}
+
+/* 操作ボタン */
+#controls button {
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+#insert-btn, #lever-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#stop-btns {
+    margin-top: 10px;
+}
+
+.stop-btn {
+    background-color: #f44336;
+    color: white;
+    width: 80px;
+}
+
+/* モーダル (コイン購入) */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4); 
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; 
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 10px;
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 景品 */
+#prizes-list, #collection-list {
+    text-align: left;
+    margin-top: 15px;
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.prize-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.prize-item:last-child {
+    border-bottom: none;
+}
