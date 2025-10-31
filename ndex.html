@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J-SLOT Web App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <h1>J-SLOT GAME</h1>
+        <div id="status">
+            所持コイン: <span id="coin-count">0</span>枚
+        </div>
+
+        <div id="slot-machine">
+            <div id="reels">
+                <div class="reel-container" id="reel-0"></div>
+                <div class="reel-container" id="reel-1"></div>
+                <div class="reel-container" id="reel-2"></div>
+            </div>
+
+            <div id="gogo-lamp" class="off">GOGO!</div>
+        </div>
+        
+        <div id="controls">
+            <button id="insert-btn">インサート (3枚消費)</button>
+            <button id="lever-btn" disabled>レバー (スタート)</button>
+            <div id="stop-btns">
+                <button class="stop-btn" data-reel-index="0" disabled>STOP 1</button>
+                <button class="stop-btn" data-reel-index="1" disabled>STOP 2</button>
+                <button class="stop-btn" data-reel-index="2" disabled>STOP 3</button>
+            </div>
+            <p id="message"></p>
+        </div>
+
+        <hr>
+
+        <h2>コイン購入</h2>
+        <div id="purchase-area">
+            <button onclick="showPurchaseModal(30)">30枚 (シリアル: 90)</button>
+            <button onclick="showPurchaseModal(100)">100枚 (シリアル: 300)</button>
+            <button onclick="showPurchaseModal(500)">500枚 (シリアル: 1500)</button>
+        </div>
+
+        <div id="purchase-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closePurchaseModal()">&times;</span>
+                <h3>コイン購入 - <span id="purchase-amount"></span>枚</h3>
+                <p>シリアルキー (枚数の3倍) を入力してください:</p>
+                <input type="number" id="serial-key-input" placeholder="シリアルキー">
+                <button id="confirm-purchase-btn">購入確定</button>
+                <p id="purchase-message"></p>
+            </div>
+        </div>
+
+        <hr>
+        
+        <h2>景品交換 (コレクション)</h2>
+        <div id="prizes-list">
+            </div>
+        <div id="collection-list">
+            <h3>所持コレクション</h3>
+            </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
