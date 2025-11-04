@@ -20,20 +20,53 @@ const PRIZES = [
     { id: 3, name: 'プレミアムフィギュア', cost: 1500, collected: false },
 ];
 
-// --- DOM要素 ---
-const coinCountEl = document.getElementById('coin-count');
-const leverBtn = document.getElementById('lever-btn');
-const insertBtn = document.getElementById('insert-btn');
-const stopBtns = document.querySelectorAll('.stop-btn');
-const messageEl = document.getElementById('message');
-const gogoLampEl = document.getElementById('gogo-lamp');
-const reelContainers = [
-    document.getElementById('reel-0'),
-    document.getElementById('reel-1'),
-    document.getElementById('reel-2')
-];
-const confirmPurchaseBtn = document.getElementById('confirm-purchase-btn');
-const purchaseMessageEl = document.getElementById('purchase-message');
+// --- DOM要素 (グローバル変数として定義するが、初期化はDOMContentLoaded内で行う) ---
+let coinCountEl;
+let leverBtn;
+let insertBtn;
+let stopBtns;
+let messageEl;
+let gogoLampEl;
+let reelContainers;
+let confirmPurchaseBtn;
+let purchaseMessageEl;
+let prizesListEl;
+let collectionListEl;
+
+// --- コイン購入機能用変数 ---
+let currentPurchaseAmount = 0;
+
+/**
+ * ページ上のすべての要素がロードされた後に実行される関数
+ * ❗️❗️❗️ 最重要 ❗️❗️❗️：すべての要素取得とイベント設定はここで行う
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM要素の取得
+    coinCountEl = document.getElementById('coin-count');
+    leverBtn = document.getElementById('lever-btn');
+    insertBtn = document.getElementById('insert-btn');
+    stopBtns = document.querySelectorAll('.stop-btn');
+    messageEl = document.getElementById('message');
+    gogoLampEl = document.getElementById('gogo-lamp');
+    reelContainers = [
+        document.getElementById('reel-0'),
+        document.getElementById('reel-1'),
+        document.getElementById('reel-2')
+    ];
+    confirmPurchaseBtn = document.getElementById('confirm-purchase-btn');
+    purchaseMessageEl = document.getElementById('purchase-message');
+    prizesListEl = document.getElementById('prizes-list');
+    collectionListEl = document.getElementById('collection-list');
+
+    // イベントリスナーの設定
+    insertBtn.addEventListener('click', handleInsert);
+    leverBtn.addEventListener('click', handleLever);
+    stopBtns.forEach(btn => btn.addEventListener('click', handleStop));
+    confirmPurchaseBtn.addEventListener('click', handleConfirmPurchase);
+
+    // ゲームの初期化
+    initializeGame();
+});
 
 // --- 初期化とデータ読み込み ---
 
@@ -74,15 +107,17 @@ function updateUI() {
  * リールの図柄をランダムにセット
  */
 function setReelSymbol(index, symbol) {
-    reelContainers[index].textContent = symbol;
+    if (reelContainers && reelContainers[index]) {
+        reelContainers[index].textContent = symbol;
+    }
 }
 
 // --- ゲームロジック ---
 
 /**
- * 1. インサートボタン
+ * 1. インサートボタン処理
  */
-insertBtn.addEventListener('click', () => {
+function handleInsert() {
     if (isStarted) return;
     if (coins >= 3) {
         coins -= 3;
@@ -93,12 +128,12 @@ insertBtn.addEventListener('click', () => {
         messageEl.textContent = 'コインが不足しています。購入してください。';
     }
     updateUI();
-});
+}
 
 /**
- * 2. レバーボタン（スタート）
+ * 2. レバーボタン（スタート）処理
  */
-leverBtn.addEventListener('click', () => {
+function handleLever() {
     if (!isStarted || isSpinning.some(s => s)) return;
     
     // 実際に当選させるかどうかの判定 (5%の確率でボーナス成立としてシミュレート)
@@ -106,7 +141,7 @@ leverBtn.addEventListener('click', () => {
     if (isBonus) {
         // ボーナス成立の場合、第一リール停止後にGOGO!ランプを点灯させる
         setTimeout(() => {
-            gogoLampEl.classList.add('on');
+            if (!isSpinning[0]) gogoLampEl.classList.add('on');
         }, 1500); // 1.5秒後に点灯
     }
     
@@ -121,14 +156,12 @@ leverBtn.addEventListener('click', () => {
     for (let i = 0; i < 3; i++) {
         spinReel(i);
     }
-});
+}
 
 /**
  * リールを回転させる
  */
 function spinReel(index) {
-    let spinCounter = 0;
-    
     // 視覚的な回転効果
     const rotationInterval = setInterval(() => {
         if (!isSpinning[index]) {
@@ -139,7 +172,6 @@ function spinReel(index) {
         // ランダムな図柄を表示して回転をシミュレート
         const randomSymbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
         setReelSymbol(index, randomSymbol);
-        spinCounter++;
     }, 50);
 
     // リールオブジェクトに回転状態を保持
@@ -147,22 +179,20 @@ function spinReel(index) {
 }
 
 /**
- * 3. ストップボタン
+ * 3. ストップボタン処理
  */
-stopBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const index = parseInt(btn.dataset.reelIndex);
-        if (!isSpinning[index]) return;
+function handleStop(event) {
+    const index = parseInt(event.target.dataset.reelIndex);
+    if (!isSpinning[index]) return;
 
-        stopReel(index);
-        btn.disabled = true;
+    stopReel(index);
+    event.target.disabled = true;
 
-        // 全てのリールが停止したかチェック
-        if (isSpinning.every(s => s === false)) {
-            checkWin();
-        }
-    });
-});
+    // 全てのリールが停止したかチェック
+    if (isSpinning.every(s => s === false)) {
+        checkWin();
+    }
+}
 
 /**
  * リールを停止させる
@@ -228,8 +258,6 @@ function checkWin() {
 
 
 // --- コイン購入機能 ---
-let currentPurchaseAmount = 0;
-
 function showPurchaseModal(amount) {
     currentPurchaseAmount = amount;
     document.getElementById('purchase-amount').textContent = amount;
@@ -238,11 +266,12 @@ function showPurchaseModal(amount) {
     document.getElementById('serial-key-input').value = '';
 }
 
+// ⚠️ HTMLの onclick から呼ばれているため、DOMCotentLoaded外でもOK
 function closePurchaseModal() {
     document.getElementById('purchase-modal').style.display = 'none';
 }
 
-confirmPurchaseBtn.addEventListener('click', () => {
+function handleConfirmPurchase() {
     const keyInput = document.getElementById('serial-key-input').value;
     const key = parseInt(keyInput);
     
@@ -258,7 +287,7 @@ confirmPurchaseBtn.addEventListener('click', () => {
     } else {
         purchaseMessageEl.textContent = 'シリアルキーが間違っています。';
     }
-});
+}
 
 // --- 景品交換機能 ---
 
@@ -266,8 +295,9 @@ confirmPurchaseBtn.addEventListener('click', () => {
  * 景品リストをレンダリング
  */
 function renderPrizes() {
-    const prizesListEl = document.getElementById('prizes-list');
-    const collectionListEl = document.getElementById('collection-list');
+    // DOM要素が取得されていることを確認
+    if (!prizesListEl || !collectionListEl) return;
+    
     prizesListEl.innerHTML = '';
     collectionListEl.innerHTML = '';
 
@@ -292,40 +322,4 @@ function renderPrizes() {
     }
 
     if (collectionItems.length > 0) {
-        collectionListEl.innerHTML += collectionItems.map(item => `<div class="prize-item">${item}</div>`).join('');
-    } else {
-        collectionListEl.innerHTML += '<p>まだコレクションはありません。</p>';
-    }
-
-    // 景品データをlocalStorageに保存
-    localStorage.setItem('slot_prizes', JSON.stringify(PRIZES.map(p => ({ id: p.id, collected: p.collected }))));
-}
-
-/**
- * 景品交換処理
- */
-function handleExchange(prizeId) {
-    const prize = PRIZES.find(p => p.id === prizeId);
-
-    if (!prize || prize.collected) {
-        alert('この景品は交換できません。');
-        return;
-    }
-
-    if (coins >= prize.cost) {
-        const confirmed = confirm(`${prize.name}を${prize.cost}枚のコインで交換しますか？`);
-        if (confirmed) {
-            coins -= prize.cost;
-            prize.collected = true;
-            alert(`${prize.name}をコレクションに追加しました！`);
-            updateUI();
-            renderPrizes();
-        }
-    } else {
-        alert('コインが不足しています。');
-    }
-}
-
-
-// --- 実行 ---
-initializeGame();
+        collectionListEl.innerHTML += collectionItems.map(item =>
