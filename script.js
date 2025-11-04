@@ -322,4 +322,36 @@ function renderPrizes() {
     }
 
     if (collectionItems.length > 0) {
-        collectionListEl.innerHTML += collectionItems.map(item =>
+        collectionListEl.innerHTML += collectionItems.map(item => `<div class="prize-item">${item}</div>`).join('');
+    } else {
+        collectionListEl.innerHTML += '<p>まだコレクションはありません。</p>';
+    }
+
+    // 景品データをlocalStorageに保存
+    localStorage.setItem('slot_prizes', JSON.stringify(PRIZES.map(p => ({ id: p.id, collected: p.collected }))));
+}
+
+/**
+ * 景品交換処理 (HTMLの onclick から呼ばれる)
+ */
+function handleExchange(prizeId) {
+    const prize = PRIZES.find(p => p.id === prizeId);
+
+    if (!prize || prize.collected) {
+        alert('この景品は交換できません。');
+        return;
+    }
+
+    if (coins >= prize.cost) {
+        const confirmed = confirm(`${prize.name}を${prize.cost}枚のコインで交換しますか？`);
+        if (confirmed) {
+            coins -= prize.cost;
+            prize.collected = true;
+            alert(`${prize.name}をコレクションに追加しました！`);
+            updateUI();
+            renderPrizes();
+        }
+    } else {
+        alert('コインが不足しています。');
+    }
+}
